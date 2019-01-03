@@ -5,27 +5,37 @@ from matplotlib import pyplot as plt
 from math import sqrt
 import cv2
 
+def display_image(image, shape):
+        plt.figure()
+        plt.imshow(image.reshape(shape), cmap=plt.cm.bone)
 
-faces= datasets.fetch_olivetti_faces()
-print(faces.data.shape)
+class PCAManipulator:
 
-def display_image(image):
-    plt.figure()
-    plt.imshow(image.reshape(faces.images[0].shape), cmap=plt.cm.bone)
+    def __init__(self, number_of_eigenfaces, dataset):
+        self.number_of_eigenfaces = number_of_eigenfaces
+        self.dataset = dataset
+        self.pca = self.generate_eigenfaces(self.number_of_eigenfaces)
 
-def generate_eigenfaces(number_of_eigenfaces):
-    pca = decomposition.PCA(n_components=number_of_eigenfaces, whiten=True)
-    return pca.fit(faces.data)
+    def get_image_shape(self):
+        return self.dataset.images[0].shape
 
-pca = generate_eigenfaces(5)
+    def generate_eigenfaces(self, number_of_eigenfaces):
+        pca = decomposition.PCA(n_components=number_of_eigenfaces, whiten=True)
+        return pca.fit(self.dataset.data)
+
+    def transform_sample(self, sample):
+        return self.pca.transform(sample.reshape(1,-1))
+
+    def reconstruct_sample(self, sample):
+        return self.pca.inverse_transform(sample)
 
 
-example = pca.transform(faces.data[1].reshape(1,-1))
-print(example.shape)
-inverse = pca.inverse_transform(example)
-print(inverse.shape)
+dataset = datasets.fetch_olivetti_faces()
+pca = PCAManipulator(100, dataset)
+transformed = pca.transform_sample(dataset.data[10])
+reconstructed = pca.reconstruct_sample(transformed)
 
-display_image(faces.data[1])
-display_image(inverse)
+display_image(dataset.data[10], pca.get_image_shape())
+display_image(reconstructed, pca.get_image_shape())
 
-#plt.show()
+plt.show()
