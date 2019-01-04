@@ -20,7 +20,7 @@ class PCAManipulator:
         return self.dataset.images[0].shape
 
     def generate_eigenfaces(self, number_of_eigenfaces):
-        pca = decomposition.PCA(n_components=number_of_eigenfaces, whiten=True)
+        pca = decomposition.PCA(n_components=number_of_eigenfaces, whiten=False)
         return pca.fit(self.dataset.data)
 
     def transform_sample(self, sample):
