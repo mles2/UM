@@ -25,11 +25,14 @@ print(outputs.shape)
 mlp = NeuralNet(1000)
 mlp.learn(X_train, y_train)
 
-y_pred = mlp.predict(X_test)
-print(y_pred)
+y_train_pred = mlp.predict(X_train)
+y_test_pred = mlp.predict(X_test)
+print(y_test_pred)
 print(y_test)
 
-print(accuracy_score(y_test,y_pred))
+
+print("Learn accuracy:", accuracy_score(y_train, y_train_pred))
+print("Test accuracy:", accuracy_score(y_test,y_test_pred))
 
 # transformed = pca.transform_sample(dataset.data[10])
 # reconstructed = pca.reconstruct_sample(transformed)
