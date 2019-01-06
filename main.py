@@ -4,7 +4,7 @@ from knn import Knn
 from svm import Svm
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, f1_score
 from matplotlib import pyplot as plt
 
 def display_image(image, shape):
@@ -24,26 +24,32 @@ print(inputs_after_pca.shape)
 outputs = dataset.target
 print(outputs.shape)
 
-mlp = NeuralNet(1000)
+mlp = NeuralNet(10000)
 mlp.learn(X_train, y_train)
 y_train_mlp_pred = mlp.predict(X_train)
 y_test_mlp_pred = mlp.predict(X_test)
 print("MLP Learn accuracy score:", accuracy_score(y_train, y_train_mlp_pred))
+print("MLP Learn F1 score ", f1_score(y_train, y_train_mlp_pred, average='micro'))
 print("MLP Test accuracy score:", accuracy_score(y_test, y_test_mlp_pred))
+print("MLP Test F1 score ", f1_score(y_test, y_test_mlp_pred, average='micro'))
 
 knn = Knn(2)
 knn.learn(X_train, y_train)
 y_train_knn_pred = knn.predict(X_train)
 y_test_knn_pred = knn.predict(X_test)
 print("KNN Learn accuracy score:", accuracy_score(y_train, y_train_knn_pred))
+print("KNN Learn F1 score ", f1_score(y_train, y_train_knn_pred, average='micro'))
 print("KNN Test accuracy score:", accuracy_score(y_test, y_test_knn_pred))
+print("KNN Test F1 score ", f1_score(y_test, y_test_knn_pred, average='micro'))
 
 svm = Svm()
 svm.learn(X_train, y_train)
 y_train_svm_pred = svm.predict(X_train)
 y_test_svm_pred = svm.predict(X_test)
 print("SVM Learn accuracy score:", accuracy_score(y_train, y_train_svm_pred))
+print("SVM Learn F1 score ", f1_score(y_train, y_train_svm_pred, average='micro'))
 print("SVM Test accuracy score:", accuracy_score(y_test, y_test_svm_pred))
+print("SVM Test F1 score ", f1_score(y_test, y_test_svm_pred, average='micro'))
 
 # transformed = pca.transform_sample(dataset.data[10])
 # reconstructed = pca.reconstruct_sample(transformed)
