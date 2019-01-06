@@ -4,6 +4,8 @@ from knn import Knn
 from svm import Svm
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
+from sklearn.svm import SVR
+from sklearn.feature_selection import mutual_info_classif, RFE
 from sklearn.metrics import accuracy_score, f1_score, hamming_loss, classification_report
 from matplotlib import pyplot as plt
 
@@ -32,14 +34,24 @@ print(inputs_after_pca.shape)
 outputs = dataset.target
 print(outputs.shape)
 
-mlp = NeuralNet(100)
+#MutualInformation Selection
+mutual_information_feature_selection = mutual_info_classif(inputs_after_pca, outputs, discrete_features='auto', n_neighbors=3, copy=True, random_state=None)
+print(mutual_information_feature_selection.shape, mutual_information_feature_selection)
+
+#RFE Information Selection
+rfe_feature_selection = RFE(inputs_after_pca, outputs)
+estimator = SVR(kernel="linear")
+rfe_feature_selection = RFE(estimator, 5, step=1)
+rfe_feature_selection = rfe_feature_selection.fit(inputs_after_pca, outputs).ranking_
+print(rfe_feature_selection.shape, rfe_feature_selection)
+
+mlp = NeuralNet(10000)
 mlp.learn(X_train, y_train)
 y_train_mlp_pred = mlp.predict(X_train)
 y_test_mlp_pred = mlp.predict(X_test)
 print("MLP")
 compute_metrics("Train", y_train, y_train_mlp_pred)
 compute_metrics("Test", y_test, y_test_mlp_pred)
-
 
 knn = Knn(2)
 knn.learn(X_train, y_train)
