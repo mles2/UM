@@ -4,17 +4,25 @@ from knn import Knn
 from svm import Svm
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, f1_score
+from sklearn.metrics import accuracy_score, f1_score, hamming_loss, classification_report
 from matplotlib import pyplot as plt
 
 def display_image(image, shape):
-        plt.figure()
-        plt.imshow(image.reshape(shape), cmap=plt.cm.bone)
+    plt.figure()
+    plt.imshow(image.reshape(shape), cmap=plt.cm.bone)
+
+def compute_metrics(accuracy_type, ideal, real):
+    print("    ", accuracy_type,":")
+    print("         accuracy score: ", accuracy_score(ideal, real))
+    print("         loss: ", hamming_loss(ideal, real))
+    print("         F1 score: ", f1_score(ideal, real, average='macro'))
+    print("         classification report: ")
+    print(classification_report(ideal, real))
 
 dataset = datasets.fetch_olivetti_faces()
 pca = PCAManipulator(100, dataset)
 
-X_train, X_test, y_train, y_test = train_test_split(dataset.data, dataset.target, test_size=0.25, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(dataset.data, dataset.target, test_size=0.25)
 
 print(X_train.shape)
 
@@ -24,32 +32,30 @@ print(inputs_after_pca.shape)
 outputs = dataset.target
 print(outputs.shape)
 
-mlp = NeuralNet(10000)
+mlp = NeuralNet(100)
 mlp.learn(X_train, y_train)
 y_train_mlp_pred = mlp.predict(X_train)
 y_test_mlp_pred = mlp.predict(X_test)
-print("MLP Learn accuracy score:", accuracy_score(y_train, y_train_mlp_pred))
-print("MLP Learn F1 score ", f1_score(y_train, y_train_mlp_pred, average='micro'))
-print("MLP Test accuracy score:", accuracy_score(y_test, y_test_mlp_pred))
-print("MLP Test F1 score ", f1_score(y_test, y_test_mlp_pred, average='micro'))
+print("MLP")
+compute_metrics("Train", y_train, y_train_mlp_pred)
+compute_metrics("Test", y_test, y_test_mlp_pred)
+
 
 knn = Knn(2)
 knn.learn(X_train, y_train)
 y_train_knn_pred = knn.predict(X_train)
 y_test_knn_pred = knn.predict(X_test)
-print("KNN Learn accuracy score:", accuracy_score(y_train, y_train_knn_pred))
-print("KNN Learn F1 score ", f1_score(y_train, y_train_knn_pred, average='micro'))
-print("KNN Test accuracy score:", accuracy_score(y_test, y_test_knn_pred))
-print("KNN Test F1 score ", f1_score(y_test, y_test_knn_pred, average='micro'))
+print("KNN")
+compute_metrics("Train", y_train, y_train_knn_pred)
+compute_metrics("Test", y_test, y_test_knn_pred)
 
 svm = Svm()
 svm.learn(X_train, y_train)
 y_train_svm_pred = svm.predict(X_train)
 y_test_svm_pred = svm.predict(X_test)
-print("SVM Learn accuracy score:", accuracy_score(y_train, y_train_svm_pred))
-print("SVM Learn F1 score ", f1_score(y_train, y_train_svm_pred, average='micro'))
-print("SVM Test accuracy score:", accuracy_score(y_test, y_test_svm_pred))
-print("SVM Test F1 score ", f1_score(y_test, y_test_svm_pred, average='micro'))
+print("SVM")
+compute_metrics("Train", y_train, y_train_svm_pred)
+compute_metrics("Test", y_test, y_test_svm_pred)
 
 # transformed = pca.transform_sample(dataset.data[10])
 # reconstructed = pca.reconstruct_sample(transformed)
