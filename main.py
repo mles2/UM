@@ -1,5 +1,6 @@
 from mlp import NeuralNet
 from pca import PCAManipulator
+from knn import Knn
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
@@ -24,15 +25,17 @@ print(outputs.shape)
 
 mlp = NeuralNet(1000)
 mlp.learn(X_train, y_train)
+y_train_mlp_pred = mlp.predict(X_train)
+y_test_mlp_pred = mlp.predict(X_test)
+print("MLP Learn accuracy score:", accuracy_score(y_train, y_train_mlp_pred))
+print("MLP Test accuracy score:", accuracy_score(y_test, y_test_mlp_pred))
 
-y_train_pred = mlp.predict(X_train)
-y_test_pred = mlp.predict(X_test)
-print(y_test_pred)
-print(y_test)
-
-
-print("Learn accuracy:", accuracy_score(y_train, y_train_pred))
-print("Test accuracy:", accuracy_score(y_test,y_test_pred))
+knn = Knn(2)
+knn.learn(X_train, y_train)
+y_train_knn_pred = knn.predict(X_train)
+y_test_knn_pred = knn.predict(X_test)
+print("KNN Learn accuracy score:", accuracy_score(y_train, y_train_knn_pred))
+print("KNN Test accuracy score:", accuracy_score(y_test, y_test_knn_pred))
 
 # transformed = pca.transform_sample(dataset.data[10])
 # reconstructed = pca.reconstruct_sample(transformed)
