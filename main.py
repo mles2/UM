@@ -35,6 +35,7 @@ print(inputs_after_pca.shape)
 #TODO
 #wybranie jednego i policzenie drzewem,
 #kroswalidacja,
+#wybieranie danych na podstawie istotności
 #zebranie danych z eksperymentu,
 #redakcja artykułu
 
