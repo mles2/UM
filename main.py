@@ -32,6 +32,12 @@ print(X_train.shape)
 inputs_after_pca = pca.transform(dataset.data)
 print(inputs_after_pca.shape)
 
+#TODO
+#wybranie jednego i policzenie drzewem,
+#kroswalidacja,
+#zebranie danych z eksperymentu,
+#redakcja artykułu
+
 outputs = dataset.target
 print(outputs.shape)
 
