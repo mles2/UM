@@ -8,6 +8,7 @@ from sklearn.svm import SVR
 from sklearn.feature_selection import mutual_info_classif, RFE
 from sklearn.metrics import accuracy_score, f1_score, hamming_loss, classification_report
 from matplotlib import pyplot as plt
+from sklearn.tree import DecisionTreeClassifier
 
 def display_image(image, shape):
     plt.figure()
@@ -44,6 +45,16 @@ estimator = SVR(kernel="linear")
 rfe_feature_selection = RFE(estimator, 5, step=1)
 rfe_feature_selection = rfe_feature_selection.fit(inputs_after_pca, outputs).ranking_
 print(rfe_feature_selection.shape, rfe_feature_selection)
+
+#Decision tree clasifier
+dtc = DecisionTreeClassifier()
+dtc.fit(X_train,y_train)
+y_train_dtc_pred = dtc.predict(X_train)
+y_test_dtc_pred = dtc.predict(X_test)
+print("Decision tree")
+compute_metrics("Train", y_train, y_train_dtc_pred)
+compute_metrics("Test", y_test, y_test_dtc_pred)
+
 
 mlp = NeuralNet(10000)
 mlp.learn(X_train, y_train)
