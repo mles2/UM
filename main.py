@@ -37,9 +37,9 @@ print("inputs after pca shape")
 print(inputs_after_pca.shape)
 
 # TODO
-# wybranie jednego i policzenie drzewem,
+# wybranie jednego i policzenie drzewem, /DONE
 # kroswalidacja,
-# wybieranie danych na podstawie istotności
+# wybieranie danych na podstawie istotności /DONE
 # zebranie danych z eksperymentu,
 # redakcja artykułu
 
