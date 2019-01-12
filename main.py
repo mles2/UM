@@ -32,38 +32,25 @@ def compute_metrics(accuracy_type, ideal, real):
     return accs, hl, f1s
 
 
-def evaluateNeuralNet(X_train, X_test, y_train, y_test):
-    mlp = NeuralNet(10000)
-    mlp.learn(X_train, y_train)
-    y_train_mlp_pred = mlp.predict(X_train)
-    y_test_mlp_pred = mlp.predict(X_test)
-    print("MLP")
+def evaluate_classifier(classifier, X_train, X_test, y_train, y_test):
+    classifier.learn(X_train, y_train)
+    y_train_mlp_pred = classifier.predict(X_train)
+    y_test_mlp_pred = classifier.predict(X_test)
     accs_train, hl_train, f1s_train = compute_metrics("Train", y_train, y_train_mlp_pred)
     accs_test, hl_test, f1s_test = compute_metrics("Test", y_test, y_test_mlp_pred)
     return EvaluationScores(accs_train, hl_train, f1s_train, accs_test, hl_test, f1s_test)
 
+def evaluateNeuralNet(X_train, X_test, y_train, y_test):
+    mlp = NeuralNet(10000)
+    return evaluate_classifier(mlp, X_train, X_test, y_train, y_test)
 
 def evaluateKnn(X_train, X_test, y_train, y_test):
     knn = Knn(2)
-    knn.learn(X_train, y_train)
-    y_train_knn_pred = knn.predict(X_train)
-    y_test_knn_pred = knn.predict(X_test)
-    print("KNN")
-    accs_train, hl_train, f1s_train = compute_metrics("Train", y_train, y_train_knn_pred)
-    accs_test, hl_test, f1s_test = compute_metrics("Test", y_test, y_test_knn_pred)
-    return EvaluationScores(accs_train, hl_train, f1s_train, accs_test, hl_test, f1s_test)
-
+    return evaluate_classifier(knn, X_train, X_test, y_train, y_test)
 
 def evaluateSvm(X_train, X_test, y_train, y_test):
     svm = Svm()
-    svm.learn(X_train, y_train)
-    y_train_svm_pred = svm.predict(X_train)
-    y_test_svm_pred = svm.predict(X_test)
-    print("SVM")
-    accs_train, hl_train, f1s_train = compute_metrics("Train", y_train, y_train_svm_pred)
-    accs_test, hl_test, f1s_test = compute_metrics("Test", y_test, y_test_svm_pred)
-    return EvaluationScores(accs_train, hl_train, f1s_train, accs_test, hl_test, f1s_test)
-
+    return evaluate_classifier(svm, X_train, X_test, y_train, y_test)
 
 NUMBER_OF_FEATURES = 50
 N_FOLDS = 2
