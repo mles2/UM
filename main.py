@@ -11,6 +11,7 @@ from matplotlib import pyplot as plt
 from future_selection_service import FutureSelectionService as fss
 from remove_eigenface_feature_selector import RemoveEigenfaceFutureSelector
 from evaluation_scores import EvaluationScores
+from mlxtend.evaluate import combined_ftest_5x2cv
 
 #Constant values
 NUMBER_OF_FEATURES = 50
@@ -78,6 +79,16 @@ def display_results(feature_selection_NN, feature_selection_Knn, feature_selecti
     feature_selection_Svm.display_results("SVM:")
 
 
+def display_f_test(inputs_from_feature_selection, dataset):
+    print("ftest results: (f, p) =")
+    print(" NN, KNN: ", combined_ftest_5x2cv(NeuralNet(10000).clf, Knn(2).clf,
+                                            inputs_from_feature_selection, dataset.target, random_seed=1))
+    print(" NN, SVM: ", combined_ftest_5x2cv(NeuralNet(10000).clf, Svm().clf,
+                                            inputs_from_feature_selection, dataset.target, random_seed=1))
+    print(" KNN, SVM: ", combined_ftest_5x2cv(Knn(2).clf, Svm().clf,
+                                             inputs_from_feature_selection, dataset.target, random_seed=1))
+
+
 cv5x2 = RepeatedStratifiedKFold(n_splits=N_FOLDS, n_repeats=N_REPEATS, random_state=36851234)
 dataset = datasets.fetch_olivetti_faces()
 pca = PCAManipulator(100, dataset)
@@ -92,7 +103,7 @@ print(inputs_after_pca.shape)
 # wybieranie danych na podstawie istotności /DONE
 # zebranie danych z eksperymentu, /DONE
 # redakcja artykułu
-# testy parowe F test
+# testy parowe F test /DONE
 
 outputs = dataset.target
 print(outputs.shape)
@@ -100,6 +111,7 @@ print(outputs.shape)
 # No feature selection
 nn, knn, svm = perform_experiment_with_selected_features(inputs_after_pca, dataset)
 display_results(nn, knn, svm, "No feature selection")
+display_f_test(inputs_after_pca, dataset)
 
 # MutualInformation Selection
 mutual_information_feature_selection = mutual_info_classif(inputs_after_pca, outputs, discrete_features='auto',
@@ -108,6 +120,7 @@ inputs_mutual_information = fss.get_best_features(inputs_after_pca, mutual_infor
                                                   NUMBER_OF_FEATURES)
 mutual_information_NN, mutual_information_Knn, mutual_information_Svm = perform_experiment_with_selected_features(inputs_mutual_information, dataset)
 display_results(mutual_information_NN, mutual_information_Knn, mutual_information_Svm, "Mutual Information Selection")
+display_f_test(inputs_mutual_information, dataset)
 
 # RFE Information Selection
 rfe_feature_selection = RFE(inputs_after_pca, outputs)
@@ -117,6 +130,7 @@ rfe_feature_selection = rfe_feature_selection.fit(inputs_after_pca, outputs).ran
 inputs_rfe = inputs_after_pca[:, rfe_feature_selection == 1]
 rfe_NN, rfe_Knn, rfe_Svm = perform_experiment_with_selected_features(inputs_rfe, dataset)
 display_results(rfe_NN, rfe_Knn, rfe_Svm, "RFE Information Selection")
+display_f_test(inputs_rfe, dataset)
 
 # Remove eigenface selection
 refs = RemoveEigenfaceFutureSelector(inputs_after_pca, dataset.target)
@@ -125,4 +139,4 @@ inputs_remove_eigenface = fss.get_best_features(inputs_after_pca, remove_eigenfa
                                                 NUMBER_OF_FEATURES)
 remove_eigenface_NN, remove_eigenface_Knn, remove_eigenface_Svm = perform_experiment_with_selected_features(inputs_remove_eigenface, dataset)
 display_results(remove_eigenface_NN, remove_eigenface_Knn, remove_eigenface_Svm, "Remove eigenface selection")
-
+display_f_test(inputs_remove_eigenface, dataset)
