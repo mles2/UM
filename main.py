@@ -23,10 +23,10 @@ def compute_metrics(accuracy_type, ideal, real):
     hl = hamming_loss(ideal, real)
     f1s = f1_score(ideal, real, average='macro')
 
-    print("    ", accuracy_type, ":")
-    print("         accuracy score: ", accs)
-    print("         loss: ", hl)
-    print("         F1 score: ", f1s)
+    # print("    ", accuracy_type, ":")
+    # print("         accuracy score: ", accs)
+    # print("         loss: ", hl)
+    # print("         F1 score: ", f1s)
     # print("         classification report: ")
     # print(classification_report(ideal, real))
     return accs, hl, f1s
@@ -51,6 +51,21 @@ def evaluateKnn(X_train, X_test, y_train, y_test):
 def evaluateSvm(X_train, X_test, y_train, y_test):
     svm = Svm()
     return evaluate_classifier(svm, X_train, X_test, y_train, y_test)
+
+def perform_experiment_with_selected_features(inputs_from_feature_selection, dataset):
+    feature_selection_NN = EvaluationScores()
+    feature_selection_Knn = EvaluationScores()
+    feature_selection_Svm = EvaluationScores()
+    for train_index, test_index in cv5x2.split(inputs_from_feature_selection, dataset.target):
+        X_train, X_test = inputs_from_feature_selection[train_index], inputs_from_feature_selection[test_index]
+        y_train, y_test = dataset.target[train_index], dataset.target[test_index]
+        feature_selection_NN = feature_selection_NN + evaluateNeuralNet(X_train, X_test, y_train, y_test)
+        feature_selection_Knn = feature_selection_Knn + evaluateKnn(X_train, X_test, y_train, y_test)
+        feature_selection_Svm = feature_selection_Svm + evaluateSvm(X_train, X_test, y_train, y_test)
+    feature_selection_NN = feature_selection_NN / (N_REPEATS * N_FOLDS)
+    feature_selection_Knn = feature_selection_Knn / (N_REPEATS * N_FOLDS)
+    feature_selection_Svm = feature_selection_Svm / (N_REPEATS * N_FOLDS)
+    return feature_selection_NN, feature_selection_Knn, feature_selection_Svm
 
 NUMBER_OF_FEATURES = 50
 N_FOLDS = 2
@@ -83,19 +98,7 @@ mutual_information_feature_selection = mutual_info_classif(inputs_after_pca, out
                                                            n_neighbors=3, copy=True, random_state=None)
 inputs_mutual_information = fss.get_best_features(inputs_after_pca, mutual_information_feature_selection,
                                                   NUMBER_OF_FEATURES)
-
-mutual_information_NN = EvaluationScores()
-mutual_information_Knn = EvaluationScores()
-mutual_information_Svm = EvaluationScores()
-for train_index, test_index in cv5x2.split(inputs_mutual_information, dataset.target):
-    X_train, X_test = inputs_mutual_information[train_index], inputs_mutual_information[test_index]
-    y_train, y_test = dataset.target[train_index], dataset.target[test_index]
-    mutual_information_NN = mutual_information_NN + evaluateNeuralNet(X_train, X_test, y_train, y_test)
-    mutual_information_Knn = mutual_information_Knn + evaluateKnn(X_train, X_test, y_train, y_test)
-    mutual_information_Svm = mutual_information_Svm + evaluateSvm(X_train, X_test, y_train, y_test)
-mutual_information_NN = mutual_information_NN / (N_REPEATS * N_FOLDS)
-mutual_information_Knn = mutual_information_Knn / (N_REPEATS * N_FOLDS)
-mutual_information_Svm = mutual_information_Svm / (N_REPEATS * N_FOLDS)
+mutual_information_NN, mutual_information_Knn, mutual_information_Svm = perform_experiment_with_selected_features(inputs_mutual_information, dataset)
 
 
 # RFE Information Selection
@@ -104,42 +107,11 @@ estimator = SVR(kernel="linear")
 rfe_feature_selection = RFE(estimator, NUMBER_OF_FEATURES, step=1)
 rfe_feature_selection = rfe_feature_selection.fit(inputs_after_pca, outputs).ranking_
 inputs_rfe = inputs_after_pca[:, rfe_feature_selection == 1]
-
-rfe_NN = EvaluationScores()
-rfe_Knn = EvaluationScores()
-rfe_Svm = EvaluationScores()
-for train_index, test_index in cv5x2.split(inputs_rfe, dataset.target):
-    X_train, X_test = inputs_rfe[train_index], inputs_rfe[test_index]
-    y_train, y_test = dataset.target[train_index], dataset.target[test_index]
-    rfe_NN = rfe_NN + evaluateNeuralNet(X_train, X_test, y_train, y_test)
-    rfe_Knn = rfe_Knn + evaluateKnn(X_train, X_test, y_train, y_test)
-    rfe_Svm = rfe_Svm + evaluateSvm(X_train, X_test, y_train, y_test)
-rfe_NN = rfe_NN / (N_REPEATS * N_FOLDS)
-rfe_Knn = rfe_Knn / (N_REPEATS * N_FOLDS)
-rfe_Svm = rfe_Svm / (N_REPEATS * N_FOLDS)
-
+rfe_NN, rfe_Knn, rfe_Svm = perform_experiment_with_selected_features(inputs_rfe, dataset)
 
 # Remove eigenface selection
 refs = RemoveEigenfaceFutureSelector(inputs_after_pca, dataset.target)
 remove_eigenface_feature_selection = refs.rank_features()
 inputs_remove_eigenface = fss.get_best_features(inputs_after_pca, remove_eigenface_feature_selection,
                                                 NUMBER_OF_FEATURES)
-
-remove_eigenface_NN = EvaluationScores()
-remove_eigenface_Knn = EvaluationScores()
-remove_eigenface_Svm = EvaluationScores()
-for train_index, test_index in cv5x2.split(inputs_remove_eigenface, dataset.target):
-    X_train, X_test = inputs_remove_eigenface[train_index], inputs_remove_eigenface[test_index]
-    y_train, y_test = dataset.target[train_index], dataset.target[test_index]
-    remove_eigenface_NN = remove_eigenface_NN + evaluateNeuralNet(X_train, X_test, y_train, y_test)
-    remove_eigenface_Knn = remove_eigenface_Knn + evaluateKnn(X_train, X_test, y_train, y_test)
-    remove_eigenface_Svm = remove_eigenface_Svm + evaluateSvm(X_train, X_test, y_train, y_test)
-remove_eigenface_NN = remove_eigenface_NN / (N_REPEATS * N_FOLDS)
-remove_eigenface_Knn = remove_eigenface_Knn / (N_REPEATS * N_FOLDS)
-remove_eigenface_Svm = remove_eigenface_Svm / (N_REPEATS * N_FOLDS)
-
-# transformed = pca.transform_sample(dataset.data[10])
-# reconstructed = pca.reconstruct_sample(transformed)
-# display_image(dataset.data[10], pca.get_image_shape())
-# display_image(reconstructed, pca.get_image_shape())
-plt.show()
+remove_eigenface_NN, remove_eigenface_Knn, remove_eigenface_Svm = perform_experiment_with_selected_features(inputs_remove_eigenface, dataset)
