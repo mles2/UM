@@ -1,0 +1,5 @@
+numpy
+sklearn
+scikit-image
+keras
+opencv-python
