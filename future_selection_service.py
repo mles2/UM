@@ -18,6 +18,6 @@ def get_lowest_values_indexes(values_vector, number_to_get):
 class FutureSelectionService:
 
     @staticmethod
-    def get_best_features(inputs, feature_selector, number_to_get):
-        indexes = get_lowest_values_indexes(feature_selector, number_to_get)
+    def get_best_features(inputs, feature_selector_ranking, number_to_get):
+        indexes = get_lowest_values_indexes(feature_selector_ranking, number_to_get)
         return get_values_at_indexes(inputs, indexes)
