@@ -97,6 +97,10 @@ print(inputs_after_pca.shape)
 outputs = dataset.target
 print(outputs.shape)
 
+# No feature selection
+nn, knn, svm = perform_experiment_with_selected_features(inputs_after_pca, dataset)
+display_results(nn, knn, svm, "No feature selection")
+
 # MutualInformation Selection
 mutual_information_feature_selection = mutual_info_classif(inputs_after_pca, outputs, discrete_features='auto',
                                                            n_neighbors=3, copy=True, random_state=None)
