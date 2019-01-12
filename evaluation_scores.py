@@ -32,3 +32,13 @@ class EvaluationScores:
 
         return EvaluationScores(accuracy_score_train, hamming_loss_train, f1_score_train, accuracy_score_test,
                                 hamming_loss_test, f1_score_test)
+
+    def display_results(self, title=""):
+        print(title)
+        print(" Accuracy score train: ", self.accuracy_score_train)
+        print(" Hamming loss train ", self.hamming_loss_train)
+        print(" F1 score train ", self.f1_score_train)
+        print(" Accuracy score test: ", self.accuracy_score_test)
+        print(" Hamming loss test ", self.hamming_loss_test)
+        print(" F1 score test ", self.f1_score_test)
+        

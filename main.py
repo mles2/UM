@@ -10,8 +10,12 @@ from sklearn.metrics import accuracy_score, f1_score, hamming_loss, classificati
 from matplotlib import pyplot as plt
 from future_selection_service import FutureSelectionService as fss
 from remove_eigenface_feature_selector import RemoveEigenfaceFutureSelector
-from evalueation_scores import EvaluationScores
+from evaluation_scores import EvaluationScores
 
+#Constant values
+NUMBER_OF_FEATURES = 50
+N_FOLDS = 2
+N_REPEATS = 5
 
 def display_image(image, shape):
     plt.figure()
@@ -67,16 +71,16 @@ def perform_experiment_with_selected_features(inputs_from_feature_selection, dat
     feature_selection_Svm = feature_selection_Svm / (N_REPEATS * N_FOLDS)
     return feature_selection_NN, feature_selection_Knn, feature_selection_Svm
 
-NUMBER_OF_FEATURES = 50
-N_FOLDS = 2
-N_REPEATS = 5
-cv5x2 = RepeatedStratifiedKFold(n_splits=N_FOLDS, n_repeats=N_REPEATS, random_state=36851234)
+def display_results(feature_selection_NN, feature_selection_Knn, feature_selection_Svm, title=""):
+    print(title)
+    feature_selection_NN.display_results("NN:")
+    feature_selection_Knn.display_results("KNN:")
+    feature_selection_Svm.display_results("SVM:")
 
+
+cv5x2 = RepeatedStratifiedKFold(n_splits=N_FOLDS, n_repeats=N_REPEATS, random_state=36851234)
 dataset = datasets.fetch_olivetti_faces()
 pca = PCAManipulator(100, dataset)
-
-# X_train, X_test, y_train, y_test = train_test_split(dataset.data, dataset.target, test_size=0.25)
-# print(X_train.shape)
 
 inputs_after_pca = pca.transform(dataset.data)
 print("inputs after pca shape")
@@ -99,7 +103,7 @@ mutual_information_feature_selection = mutual_info_classif(inputs_after_pca, out
 inputs_mutual_information = fss.get_best_features(inputs_after_pca, mutual_information_feature_selection,
                                                   NUMBER_OF_FEATURES)
 mutual_information_NN, mutual_information_Knn, mutual_information_Svm = perform_experiment_with_selected_features(inputs_mutual_information, dataset)
-
+display_results(mutual_information_NN, mutual_information_Knn, mutual_information_Svm, "Mutual Information Selection")
 
 # RFE Information Selection
 rfe_feature_selection = RFE(inputs_after_pca, outputs)
@@ -108,6 +112,7 @@ rfe_feature_selection = RFE(estimator, NUMBER_OF_FEATURES, step=1)
 rfe_feature_selection = rfe_feature_selection.fit(inputs_after_pca, outputs).ranking_
 inputs_rfe = inputs_after_pca[:, rfe_feature_selection == 1]
 rfe_NN, rfe_Knn, rfe_Svm = perform_experiment_with_selected_features(inputs_rfe, dataset)
+display_results(rfe_NN, rfe_Knn, rfe_Svm, "RFE Information Selection")
 
 # Remove eigenface selection
 refs = RemoveEigenfaceFutureSelector(inputs_after_pca, dataset.target)
@@ -115,3 +120,5 @@ remove_eigenface_feature_selection = refs.rank_features()
 inputs_remove_eigenface = fss.get_best_features(inputs_after_pca, remove_eigenface_feature_selection,
                                                 NUMBER_OF_FEATURES)
 remove_eigenface_NN, remove_eigenface_Knn, remove_eigenface_Svm = perform_experiment_with_selected_features(inputs_remove_eigenface, dataset)
+display_results(remove_eigenface_NN, remove_eigenface_Knn, remove_eigenface_Svm, "Remove eigenface selection")
+
