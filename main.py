@@ -116,7 +116,7 @@ display_f_test(inputs_after_pca, dataset)
 # MutualInformation Selection
 mutual_information_feature_selection = mutual_info_classif(inputs_after_pca, outputs, discrete_features='auto',
                                                            n_neighbors=3, copy=True, random_state=None)
-inputs_mutual_information = fss.get_best_features(inputs_after_pca, mutual_information_feature_selection,
+inputs_mutual_information = fss.get_best_descending_features(inputs_after_pca, mutual_information_feature_selection,
                                                   NUMBER_OF_FEATURES)
 mutual_information_NN, mutual_information_Knn, mutual_information_Svm = perform_experiment_with_selected_features(inputs_mutual_information, dataset)
 display_results(mutual_information_NN, mutual_information_Knn, mutual_information_Svm, "Mutual Information Selection")
